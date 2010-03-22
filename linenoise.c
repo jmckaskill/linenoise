@@ -80,6 +80,29 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+#ifdef LINENOISE_DEBUG
+/* Prints read characters to stderr
+ * Use like:
+ * ./linenoise_example 2> /dev/pts/16
+ * where /dev/pts/16 is the output of tty in another terminal.
+ */
+static int read_dbg(int fd, char* p, size_t sz)
+{
+    int i;
+    int ret = read(fd,p,sz);
+    for (i = 0; i < ret; i++) {
+        fprintf(stderr, "%d", p[i]);
+        if (0x21 <= p[i] && p[i] < 0x7F)
+            fprintf(stderr, " %c", p[i]);
+        fprintf(stderr, "\n");
+    }
+    return ret;
+}
+
+#define read(fd,p,sz) read_dbg(fd,p,sz)
+#endif
+
+
 static struct termios orig_termios; /* in order to restore at exit */
 static int rawmode = 0; /* for atexit() function to check if restore is needed*/
 static int atexit_registered = 0; /* register atexit just 1 time */
