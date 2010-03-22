@@ -253,6 +253,29 @@ static int linenoisePrompt(int fd, char *buf, size_t buflen, char *prompt) {
                     len = pos = strlen(buf);
                     refreshLine(fd,prompt,buf,len,pos,cols);
                 }
+            } else if (seq[0] == 91 && seq[1] == '3') {
+                if (read(fd,seq,1) != 1) break;
+                if (seq[0] == '~' && pos < len) {
+                    /* delete */
+                    memmove(buf+pos,buf+pos+1,len-pos-1);
+                    len--;
+                    buf[len] = '\0';
+                    refreshLine(fd,prompt,buf,len,pos,cols);
+                }
+            } else if (seq[0] == 91 && seq[1] == '7') {
+                if (read(fd,seq,1) != 1) break;
+                if (seq[0] == '~') {
+                    /* home */
+                    pos = 0;
+                    refreshLine(fd,prompt,buf,len,pos,cols);
+                }
+            } else if (seq[0] == 91 && seq[1] == '8') {
+                if (read(fd,seq,1) != 1) break;
+                if (seq[0] == '~') {
+                    /* end */
+                    pos = len;
+                    refreshLine(fd,prompt,buf,len,pos,cols);
+                }
             }
             break;
         default:
